@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Karakter</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        
+        .header {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 70%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            margin-top:20px;
+        }
+        .dashboard-link {
+            text-align: left;
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Detail Lighclone</h1>
+    </div>
+    <div class="dashboard-link">
+	<a href="/view/dashboard">Dashboard</a>	<a href="/view/lighclone">/lighclone</a><span>/detail</span>
+    </div>
+    <div class="container">
+        <hr>
+        <div id="lighcloneDetail">
+            <!-- Data karakter akan ditampilkan di sini -->
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Fungsi untuk mengambil dan menampilkan detail karakter
+            function viewlighclone(lighcloneId) {
+                $.get("/api/lighclones/" + lighcloneId, function (lighclone) {
+                    var lighcloneDetail = $("#lighcloneDetail");
+                    lighcloneDetail.empty(); // Menghapus data yang ada sebelumnya
+
+                    var lighcloneCard = $("<div>").addClass("card");
+                    var lighcloneCardBody = $("<div>").addClass("card-body");
+                    var lighcloneTitle = $("<h5>").addClass("card-title").text(lighclone.name);
+                    var lighcloneImage = $("<img>").attr("src", "/static/lighclones/" + lighclone.image).addClass("card-img-top").attr("style", "max-width: 200px");
+                    var lighclonePath = $("<p>").addClass("card-text").text("Path: " + lighclone.path);
+                    var lighcloneStory = $("<p>").addClass("card-text").text("Cerita: " + lighclone.story);
+
+                    lighcloneCardBody.append(lighcloneTitle);
+                    lighcloneCardBody.append(lighcloneImage);
+                    lighcloneCardBody.append(lighclonePath);
+                    lighcloneCardBody.append(lighcloneStory);
+
+                    lighcloneCard.append(lighcloneCardBody);
+                    lighcloneDetail.append(lighcloneCard);
+                });
+            }
+
+            // Mendapatkan ID karakter dari URL
+            var url = window.location.href;
+            var lighcloneId = url.substring(url.lastIndexOf("/") + 1);
+            viewlighclone(lighcloneId);
+        });
+    </script>
+</body>
+</html>

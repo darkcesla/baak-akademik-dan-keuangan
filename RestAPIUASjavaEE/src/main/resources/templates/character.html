@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Karakter</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        
+        .header {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 70%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            margin-top:30px;
+        }
+        .dashboard-link {
+            text-align: left;
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Data Karakter</h1>
+    </div>
+     <div class="dashboard-link">
+	<a href="/view/dashboard">Dashboard</a><span>/Karakter</span>
+    </div>
+<div class="container">
+    <a href="http://localhost:8080/view/addchar" class="btn btn-primary">Create</a>
+    <div class="form-group" style="margin:30px">
+        <input type="text" id="searchInput" class="form-control" placeholder="Cari Karakter">
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nama</th>
+                <th>Path</th>
+                <th>Cerita</th>
+                <th>Gambar</th>
+                <th>Edit/Hapus</th>
+            </tr>
+        </thead>
+        <tbody id="characterTable">
+            <!-- Data karakter akan ditampilkan di sini -->
+        </tbody>
+    </table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Fungsi untuk mengambil data karakter dari server
+        function getCharacters() {
+            $.get("/api/characters/all", function (data) {
+                var characterTable = $("#characterTable");
+                characterTable.empty(); // Menghapus data yang ada sebelumnya
+
+                $.each(data, function (index, character) {
+                    var row = $("<tr>");
+                    row.append($("<td>").text(character.name));
+                    row.append($("<td>").text(character.path));
+                    row.append($("<td>").text(character.story));
+
+                    // Menampilkan gambar karakter dengan lebar maksimum 200 piksel
+                    var imageCell = $("<td>");
+                    var image = $("<img>").attr("src", "/static/characters/" + character.image).attr("style", "max-width: 200px");
+                    imageCell.append(image);
+                    row.append(imageCell);
+
+                    var editDeleteCell = $("<td>");
+                    var editButton = $("<button>").text("Edit").addClass("btn btn-primary").click(function () {
+                        editCharacter(character.id);
+                    });
+                    var deleteButton = $("<button>").text("Hapus").addClass("btn btn-danger").click(function () {
+                        deleteCharacter(character.id);
+                    });
+                    var DetailCharacter = $("<button>").text("Detail").addClass("btn btn-info").click(function () {
+                        viewCharacter(character.id);
+                    });
+                     var BuildCharacter = $("<button>").text("Build").addClass("btn btn-warning").click(function () {
+                        buildCharacter(character.id);
+                    });
+                    editDeleteCell.append(DetailCharacter);
+                    editDeleteCell.append(" | ");
+                    editDeleteCell.append(editButton);
+                    editDeleteCell.append(" | ");
+                    editDeleteCell.append(deleteButton);
+                    editDeleteCell.append(" | ");
+                    editDeleteCell.append(BuildCharacter);
+
+                    row.append(editDeleteCell);
+                    characterTable.append(row);
+                });
+            });
+        }
+
+        // Fungsi untuk mengedit karakter berdasarkan ID
+        function editCharacter(characterId) {
+            // Redirect ke tampilan edit karakter dengan ID karakter yang akan diubah
+            window.location.href = "/view/edit-character/" + characterId;
+        }
+
+        // Fungsi untuk melihat detail karakter berdasarkan ID
+        function viewCharacter(characterId) {
+            // Redirect ke tampilan detail karakter dengan ID karakter yang akan dilihat
+            window.location.href = "/view/character/" + characterId;
+        }
+         function buildCharacter(characterId) {
+            // Redirect ke tampilan detail karakter dengan ID karakter yang akan dilihat
+            window.location.href = "/view/build-character/" + characterId;
+        }
+
+        // Fungsi untuk menghapus karakter berdasarkan ID
+        function deleteCharacter(characterId) {
+            // Konfirmasi pengguna sebelum menghapus karakter
+            var confirmation = confirm("Anda yakin ingin menghapus karakter ini?");
+            if (confirmation) {
+                // Mengirim permintaan DELETE ke server
+                $.ajax({
+                    url: "/api/characters/" + characterId,
+                    type: "DELETE",
+                    success: function (data) {
+                        alert("Karakter berhasil dihapus.");
+                        getCharacters(); // Memuat ulang data karakter setelah menghapus
+                    },
+                    error: function (error) {
+                        alert("Gagal menghapus karakter.");
+                    }
+                });
+            }
+        }
+
+        // Memanggil fungsi untuk mengambil data karakter saat halaman dimuat
+        getCharacters();
+    });
+
+    // Fungsi untuk menangani pencarian karakter
+    $("#searchInput").on("input", function () {
+        var searchQuery = $(this).val();
+        $.get("/api/characters/search?name=" + searchQuery, function (data) {
+            var characterTable = $("#characterTable");
+            characterTable.empty();
+
+            if (data.length === 0) {
+                characterTable.append("<tr><td colspan='5'>Karakter tidak ditemukan</td></tr>");
+            } else {
+                $.each(data, function (index, character) {
+                    // Tampilkan karakter sesuai hasil pencarian
+                    var row = $("<tr>");
+                    row.append($("<td>").text(character.name));
+                    row.append($("<td>").text(character.path));
+                    row.append($("<td>").text(character.story));
+
+                    var imageCell = $("<td>");
+                    var image = $("<img>").attr("src", "/static/characters/" + character.image).attr("style", "max-width: 200px");
+                    imageCell.append(image);
+                    row.append(imageCell);
+
+                    var editDeleteCell = $("<td>");
+                    var editButton = $("<button>").text("Edit").addClass("btn btn-primary").click(function () {
+                        editCharacter(character.id);
+                    });
+                    var deleteButton = $("<button>").text("Hapus").addClass("btn btn-danger").click(function () {
+                        deleteCharacter(character.id);
+                    });
+                    var DetailCharacter = $("<button>").text("Detail").addClass("btn btn-info").click(function () {
+                        viewCharacter(character.id);
+                    });
+                    var BuildCharacter = $("<button>").text("Build").addClass("btn btn-warning").click(function () {
+                        buildCharacter(character.id);
+                    });
+                    editDeleteCell.append(DetailCharacter);
+                    editDeleteCell.append(" | ");
+                    editDeleteCell.append(editButton);
+                    editDeleteCell.append(" | ");
+                    editDeleteCell.append(deleteButton);
+                    editDeleteCell.append(" | ");
+                    editDeleteCell.append(BuildCharacter);
+                    
+                    row.append(editDeleteCell);
+                    characterTable.append(row);
+                });
+            }
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Login & Registration Form</title>
+  <link rel="stylesheet" type="text/css" th:href="@{/static/css/style.css}">
+</head>
+<body>
+  <div class="container">
+    <input type="checkbox" id="check">
+    <div class="login form">
+      <header>Login</header>
+      <form action="#" id="loginForm">
+        <input type="text" placeholder="Enter your Username" id="loginUsername" required>
+        <input type="password" placeholder="Enter your password" id="loginPassword" required>
+        <input type="button" class="button" value="Login" onclick="login()">
+      </form>
+      <div class="signup">
+        <span class="signup">Don't have an account?
+         <label for="check">Signup</label>
+        </span>
+      </div>
+    </div>
+    <div class="registration form">
+      <header>Signup</header>
+      <form action="#" id="registrationForm">
+        <input type="text" placeholder="Enter your Username" id="regUsername" required>
+        <input type="password" placeholder="Create a password" id="regPassword" required>
+        <input type="password" placeholder="Confirm your password" id="confirmPassword" required>
+        <input type="button" class="button" value="Signup" onclick="register()">
+      </form>
+      <div class="signup">
+        <span class="signup">Already have an account?
+         <label for="check">Login</label>
+        </span>
+      </div>
+    </div>
+  </div>
+
+ <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Fungsi untuk menampilkan/menyembunyikan form login dan signup
+        $('input[type=checkbox]').click(function () {
+            if ($('#check').prop('checked')) {
+                $('.login.form').hide();
+                $('.registration.form').show();
+            } else {
+                $('.registration.form').hide();
+                $('.login.form').show();
+            }
+        });
+
+        // Fungsi untuk melakukan login
+        function login() {
+            var username = $('#loginUsername').val();
+            var password = $('#loginPassword').val();
+            var userData = {
+                "username": username,
+                "password": password
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "/api/users/login",
+                data: JSON.stringify(userData),
+                contentType: "application/json",
+                success: function (data) {
+				if (data) {
+				        // Handle login success
+				        alert("Login successful!");
+  					  window.location.href = '/view/dashboard';
+				    } else {
+				        // Handle login failure
+				        alert("Login failed. Invalid username or password.");
+				    }               
+				     },
+				                error: function (error) {
+                    // Handle login error
+                    alert("Login failed.");
+                }
+            });
+        }
+
+        // Fungsi untuk melakukan registrasi
+        function register() {
+            var username = $('#regUsername').val();
+            var password = $('#regPassword').val();
+            var confirmPassword = $('#confirmPassword').val();
+
+            if (password !== confirmPassword) {
+                alert("Password and Confirm Password do not match.");
+                return;
+            }
+
+            var userData = {
+                "username": username,
+                "password": password
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "/api/users/register",
+                data: JSON.stringify(userData),
+                contentType: "application/json",
+                success: function (data) {
+                    // Handle registration success
+                    if(data){
+                    alert("Registration successful!");
+  					  window.location.href = '/view/login';
+
+                    }
+                    else{
+						alert("Username Sudah Digunakana")
+					}
+                    
+                },
+                error: function (error) {
+                    // Handle registration error
+                    alert("Username Sudah Digunakan");
+                }
+            });
+        }
+
+        // Event handler for login button click
+        $('.login.form .button').click(login);
+
+        // Event handler for signup button click
+        $('.registration.form .button').click(register);
+    });
+</script>
+
+</body>
+</html>

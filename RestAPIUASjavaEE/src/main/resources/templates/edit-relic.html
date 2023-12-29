@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Relic</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="header">
+        <h1>Edit Relic</h1>
+    </div>
+    <div class="container">
+        <form id="editRelicForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="name">Nama</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="effect2set">Effect 2-Set</label>
+                <input type="text" class="form-control" id="effect2set" name="effect2set" required>
+            </div>
+            <div class="form-group">
+                <label for="effect4set">Effect 4-Set</label>
+                <input type="text" class="form-control" id="effect4set" name="effect4set" required>
+            </div>
+            <div class="form-group">
+                <label for="file">Pilih Gambar</label>
+                <input type="file" class="form-control-file" id="file" name="file">
+            </div>
+            <button type="submit" class="btn btn-primary">Simpan</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var relicId = getRelicIdFromUrl();
+
+            if (relicId) {
+                populateRelicData(relicId);
+            }
+
+            function getRelicIdFromUrl() {
+                var url = window.location.href;
+                var urlParts = url.split("/");
+                var relicIdIndex = urlParts.indexOf("edit-relic"); // Sesuaikan dengan struktur URL Anda
+                if (relicIdIndex > 0 && relicIdIndex < urlParts.length - 1) {
+                    return urlParts[relicIdIndex + 1]; // Ambil elemen setelah "edit-relic" dalam URL
+                }
+                return null;
+            }
+
+            function populateRelicData(relicId) {
+                $.get("/api/relics/" + relicId, function (relic) {
+                    $("#name").val(relic.name);
+                    $("#effect2set").val(relic.effect2set);
+                    $("#effect4set").val(relic.effect4set);
+                });
+            }
+
+            $("#editRelicForm").submit(function (event) {
+                event.preventDefault();
+                var form = $(this);
+                var formData = new FormData(form[0]);
+
+                $.ajax({
+                    url: "/api/relics/" + relicId,
+                    type: "PUT",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function () {
+                        alert("Relic berhasil diupdate.");
+                        window.location.href = "/view/relic/";
+                    },
+                    error: function () {
+                        alert("Gagal mengupdate relic.");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

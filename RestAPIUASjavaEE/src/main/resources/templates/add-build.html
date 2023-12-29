@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Build</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Create Build</h1>
+        <form id="createBuildForm">
+            <div class="form-group">
+                <label for="selectedLighclone">Select Lighclone:</label>
+                <select class="form-control" id="selectedLighclone" required>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="selectedRelic">Select Relic:</label>
+                <select class="form-control" id="selectedRelic" required>
+                </select>
+            </div>
+            <button type="button" class="btn btn-primary" id="createBuildButton">Create Build</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Fungsi untuk mengisi pilihan Lighclone dari data API
+            function fillLighcloneOptions() {
+                $.get("/api/lighclones/all", function (data) {
+                    var selectedLighclone = $("#selectedLighclone");
+                    selectedLighclone.empty();
+
+                    $.each(data, function (index, lighclone) {
+                        selectedLighclone.append($("<option>", {
+                            value: lighclone.id,
+                            text: lighclone.name
+                        }));
+                    });
+                });
+            }
+
+            // Fungsi untuk mengisi pilihan Relic dari data API
+            function fillRelicOptions() {
+                $.get("/api/relics/all", function (data) {
+                    var selectedRelic = $("#selectedRelic");
+                    selectedRelic.empty();
+
+                    $.each(data, function (index, relic) {
+                        selectedRelic.append($("<option>", {
+                            value: relic.id,
+                            text: relic.name
+                        }));
+                    });
+                });
+            }
+
+            // Panggil fungsi untuk mengisi pilihan Lighclone dan Relic saat halaman dimuat
+            fillLighcloneOptions();
+            fillRelicOptions();
+
+            // Fungsi untuk mengambil id_char dari URL
+            function getIdCharFromUrl() {
+                var url = window.location.href;
+                var urlParts = url.split("/");
+                var idCharIndex = urlParts.indexOf("build-character"); // Sesuaikan dengan struktur URL Anda
+                if (idCharIndex > 0 && idCharIndex < urlParts.length - 1) {
+                    return urlParts[idCharIndex + 1]; // Ambil elemen setelah "build-character" dalam URL
+                }
+                return null;
+            }
+
+            // Fungsi untuk mengirim POST request untuk membuat build
+            function createBuild() {
+                var idChar = getIdCharFromUrl();
+                var lighcloneId = $("#selectedLighclone").val();
+                var relicId = $("#selectedRelic").val();
+
+                if (!idChar || !lighcloneId || !relicId) {
+                    alert("Harap pilih Lighclone dan Relic.");
+                    return;
+                }
+
+                // Data yang akan dikirim dalam POST request
+                var buildData = {
+                    lighclone: {
+                        id: lighcloneId
+                    },
+                    relic: {
+                        id: relicId
+                    },
+                    character: {
+                        id: idChar
+                    }
+                };
+
+                // Kirim POST request
+                $.ajax({
+                    url: "/api/builds",
+                    type: "POST",
+                    data: JSON.stringify(buildData),
+                    contentType: "application/json",
+                    success: function (data) {
+                        alert("Build berhasil dibuat!");
+                        // Redirect atau lakukan tindakan lain yang sesuai
+                    },
+                    error: function (error) {
+                        alert("Gagal membuat build.");
+                    }
+                });
+            }
+
+            // Menangani klik pada tombol "Create Build"
+            $("#createBuildButton").click(createBuild);
+        });
+    </script>
+</body>
+</html>

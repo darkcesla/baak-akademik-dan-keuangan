@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Relic</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Relic</h1>
+        <form id="uploadRelicForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="name">Nama</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="effect2set">Effect 2-Set</label>
+                <input type="text" class="form-control" id="effect2set" name="effect2set" required>
+            </div>
+            <div class="form-group">
+                <label for="effect4set">Effect 4-Set</label>
+                <input type="text" class="form-control" id="effect4set" name="effect4set" required>
+            </div>
+            <div class="form-group">
+                <label for="file">Gambar Relic</label>
+                <input type="file" class="form-control-file" id="file" name="file" required>
+            </div>
+            <button type="button" class="btn btn-primary" id="uploadButton">Create</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Fungsi untuk mengunggah relic
+            function uploadRelic() {
+                var name = $("#name").val();
+                var effect2set = $("#effect2set").val();
+                var effect4set = $("#effect4set").val();
+                var fileInput = $("#file")[0].files[0];
+
+                if (name === "" || effect2set === "" || effect4set === "" || !fileInput) {
+                    alert("Harap isi semua informasi relic dan unggah gambar relic.");
+                    return;
+                }
+
+                var formData = new FormData();
+                formData.append("name", name);
+                formData.append("effect2set", effect2set);
+                formData.append("effect4set", effect4set);
+                formData.append("file", fileInput);
+
+                $.ajax({
+                    url: "/api/relics/upload",
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (data) {
+                        alert("Relic berhasil diunggah!");
+                        window.location.href = "/view/relic/";
+                    },
+                    error: function (error) {
+                        alert("Gagal mengunggah relic.");
+                    }
+                });
+            }
+
+            $("#uploadButton").click(uploadRelic);
+        });
+    </script>
+</body>
+</html>

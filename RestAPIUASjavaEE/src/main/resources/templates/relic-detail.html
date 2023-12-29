@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Relic</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        
+        .header {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 70%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
+        }
+        .dashboard-link {
+            text-align: left;
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Detail Relic</h1>
+    </div>
+    <div class="dashboard-link">
+        <a href="/view/dashboard">Dashboard</a>
+        <a href="/view/relic">/Relic</a>
+        <span>/detail</span>
+    </div>
+    <div class="container">
+        <hr>
+        <div id="relicDetail">
+            <!-- Data relic akan ditampilkan di sini -->
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Fungsi untuk mengambil dan menampilkan detail relic
+            function viewRelic(relicId) {
+                $.get("/api/relics/" + relicId, function (relic) {
+                    var relicDetail = $("#relicDetail");
+                    relicDetail.empty(); // Menghapus data yang ada sebelumnya
+
+                    var relicCard = $("<div>").addClass("card");
+                    var relicCardBody = $("<div>").addClass("card-body");
+                    var relicTitle = $("<h5>").addClass("card-title").text(relic.name);
+                    var relicImage = $("<img>").attr("src", "/static/relics/" + relic.image).addClass("card-img-top").attr("style", "max-width: 200px");
+                    var relicEffect2Set = $("<p>").addClass("card-text").text("Effect 2-Set: " + relic.effect2set);
+                    var relicEffect4Set = $("<p>").addClass("card-text").text("Effect 4-Set: " + relic.effect4set);
+
+                    relicCardBody.append(relicTitle);
+                    relicCardBody.append(relicImage);
+                    relicCardBody.append(relicEffect2Set);
+                    relicCardBody.append(relicEffect4Set);
+
+                    relicCard.append(relicCardBody);
+                    relicDetail.append(relicCard);
+                });
+            }
+
+            // Mendapatkan ID relic dari URL
+            var url = window.location.href;
+            var relicId = url.substring(url.lastIndexOf("/") + 1);
+            viewRelic(relicId);
+        });
+    </script>
+</body>
+</html>

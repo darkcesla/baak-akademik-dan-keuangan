@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Karakter</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        
+        .header {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 70%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
+        }
+        .dashboard-link {
+            text-align: left;
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Detail Karakter</h1>
+    </div>
+    <div class="dashboard-link">
+        <a href="/view/dashboard">Dashboard</a>
+        <a href="/view/character">/Karakter</a><span>/detail</span>
+    </div>
+    <div class="container">
+        <hr>
+        <div id="characterDetail">
+            <!-- Data karakter akan ditampilkan di sini -->
+        </div>
+        <h2>Daftar Build</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Lighclone</th>
+                    <th>Image</th>
+                    <th>Path</th>
+                    <th>Cerita</th>
+                </tr>
+            </thead>
+            <tbody id="buildTableBodyLighclone">
+                <!-- Data build akan ditampilkan di sini -->
+            </tbody>
+        </table>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Relic</th>
+                    <th>Image</th>
+                    <th>Effect 2 Set</th>
+                    <th>Effect 4 Set</th>
+                </tr>
+            </thead>
+            <tbody id="buildTableBodyRelic">
+                <!-- Data build akan ditampilkan di sini -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Fungsi untuk mengambil dan menampilkan detail karakter
+            function viewCharacter(characterId) {
+                $.get("/api/characters/" + characterId, function (character) {
+                    var characterDetail = $("#characterDetail");
+                    characterDetail.empty(); // Menghapus data yang ada sebelumnya
+
+                    var characterCard = $("<div>").addClass("card");
+                    var characterCardBody = $("<div>").addClass("card-body");
+                    var characterTitle = $("<h5>").addClass("card-title").text(character.name);
+                    var characterImage = $("<img>").attr("src", "/static/characters/" + character.image).addClass("card-img-top").attr("style", "max-width: 200px");
+                    var characterPath = $("<p>").addClass("card-text").text("Path: " + character.path);
+                    var characterStory = $("<p>").addClass("card-text").text("Cerita: " + character.story);
+
+                    characterCardBody.append(characterTitle);
+                    characterCardBody.append(characterImage);
+                    characterCardBody.append(characterPath);
+                    characterCardBody.append(characterStory);
+
+                    characterCard.append(characterCardBody);
+                    characterDetail.append(characterCard);
+
+                    // Memanggil fungsi untuk mengambil daftar build berdasarkan karakter
+                    viewBuildsByCharacter(characterId);
+                    viewBuildsByCharacters(characterId);
+
+                });
+            }
+
+            // Fungsi untuk mengambil dan menampilkan daftar build berdasarkan karakter
+            function viewBuildsByCharacter(characterId) {
+                $.get("/api/builds/byCharId/" + characterId, function (builds) {
+                    var buildTableBody = $("#buildTableBodyRelic");
+
+                    if (builds.length > 0) {
+                        builds.forEach(function (build) {
+                            var buildRow = $("<tr>");
+
+                            var relicCell = $("<td>").text(build.relic.name);
+                            var relicImage = $("<img>").attr("src", "/static/relics/" + build.relic.image).attr("style", "max-width: 100px");
+                            var relicEffect2Set = $("<p>").text("Effect 2 Set: " + build.relic.effect2set);
+                            var relicEffect4Set = $("<p>").text("Effect 4 Set: " + build.relic.effect4set);
+
+                            buildRow.append(relicCell);
+                            buildRow.append(relicImage);
+                            buildRow.append(relicEffect2Set);
+                            buildRow.append(relicEffect4Set);
+
+                            buildTableBody.append(buildRow);
+                        });
+                    } else {
+                        var noBuildsMessage = $("<p>").text("Belum ada build yang dibuat untuk karakter ini.");
+                        buildTableBody.append(noBuildsMessage);
+                    }
+                });
+            }
+            
+           function viewBuildsByCharacters(characterId) {
+                $.get("/api/builds/byCharId/" + characterId, function (builds) {
+                    var buildTableBody = $("#buildTableBodyLighclone");
+
+                    if (builds.length > 0) {
+                        builds.forEach(function (build) {
+                            var buildRow = $("<tr>");
+
+                            var lighcloneCell = $("<td>").text(build.lighclone.name);
+                            var lighcloneImage = $("<img>").attr("src", "/static/lighclones/" + build.lighclone.image).attr("style", "max-width: 100px");
+                            var lighclonePath = $("<p>").text("Path: " + build.lighclone.path);
+                            var lighcloneStory = $("<p>").text("Cerita: " + build.lighclone.story);
+
+                        
+
+                            buildRow.append(lighcloneCell);
+                            buildRow.append(lighcloneImage);
+                            buildRow.append(lighclonePath);
+                            buildRow.append(lighcloneStory);
+                          
+
+                            buildTableBody.append(buildRow);
+                        });
+                    } else {
+                        var noBuildsMessage = $("<p>").text("Belum ada build yang dibuat untuk karakter ini.");
+                        buildTableBody.append(noBuildsMessage);
+                    }
+                });
+            }
+
+            // Mendapatkan ID karakter dari URL
+            var url = window.location.href;
+            var characterId = url.substring(url.lastIndexOf("/") + 1);
+            viewCharacter(characterId);
+        });
+    </script>
+</body>
+</html>

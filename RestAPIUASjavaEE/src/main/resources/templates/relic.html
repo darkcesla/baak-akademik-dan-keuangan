@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Relic</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        
+        .header {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 70%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            margin-top:30px;
+        }
+        .dashboard-link {
+            text-align: left;
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Data Relic</h1>
+    </div>
+    <div class="dashboard-link">
+        <a href="/view/dashboard">Dashboard</a><span>/Relic</span>
+    </div>
+    <div class="container">
+        <a href="http://localhost:8080/view/addrelic" class="btn btn-primary">Create</a>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nama</th>
+                    <th>Effect 2-Set</th>
+                    <th>Effect 4-Set</th>
+                    <th>Gambar</th>
+                    <th>Edit/Hapus</th>
+                </tr>
+            </thead>
+            <tbody id="relicTable">
+                <!-- Data relic akan ditampilkan di sini -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Fungsi untuk mengambil data relic dari server
+            function getRelics() {
+                $.get("/api/relics/all", function (data) {
+                    var relicTable = $("#relicTable");
+                    relicTable.empty(); // Menghapus data yang ada sebelumnya
+
+                    $.each(data, function (index, relic) {
+                        var row = $("<tr>");
+                        row.append($("<td>").text(relic.name));
+                        row.append($("<td>").text(relic.effect2set));
+                        row.append($("<td>").text(relic.effect4set));
+
+                        // Menampilkan gambar relic dengan lebar maksimum 200 piksel
+                        var imageCell = $("<td>");
+                        var image = $("<img>").attr("src", "/static/relics/" + relic.image).attr("style", "max-width: 200px");
+                        imageCell.append(image);
+                        row.append(imageCell);
+
+                        var editDeleteCell = $("<td>");
+                        var editButton = $("<button>").text("Edit").addClass("btn btn-primary").click(function () {
+                            editRelic(relic.id);
+                        });
+                        var deleteButton = $("<button>").text("Hapus").addClass("btn btn-danger").click(function () {
+                            deleteRelic(relic.id);
+                        });
+                        var DetailRelic = $("<button>").text("Detail").addClass("btn btn-info").click(function () {
+                            viewRelic(relic.id);
+                        });
+                        editDeleteCell.append(DetailRelic);
+                        editDeleteCell.append(" | ");
+                        editDeleteCell.append(editButton);
+                        editDeleteCell.append(" | ");
+                        editDeleteCell.append(deleteButton);
+                        row.append(editDeleteCell);
+                        relicTable.append(row);
+                    });
+                });
+            }
+
+            // Fungsi untuk mengedit relic berdasarkan ID
+            function editRelic(relicId) {
+                // Redirect ke tampilan edit relic dengan ID relic yang akan diubah
+                window.location.href = "/view/edit-relic/" + relicId;
+            }
+
+            // Fungsi untuk melihat detail relic berdasarkan ID
+            function viewRelic(relicId) {
+                // Redirect ke tampilan detail relic dengan ID relic yang akan dilihat
+                window.location.href = "/view/relic/" + relicId;
+            }
+
+            // Fungsi untuk menghapus relic berdasarkan ID
+            function deleteRelic(relicId) {
+                // Konfirmasi pengguna sebelum menghapus relic
+                var confirmation = confirm("Anda yakin ingin menghapus relic ini?");
+                if (confirmation) {
+                    // Mengirim permintaan DELETE ke server
+                    $.ajax({
+                        url: "/api/relics/" + relicId,
+                        type: "DELETE",
+                        success: function (data) {
+                            alert("Relic berhasil dihapus.");
+                            getRelics(); // Memuat ulang data relic setelah menghapus
+                        },
+                        error: function (error) {
+                            alert("Gagal menghapus relic.");
+                        }
+                    });
+                }
+            }
+
+            // Memanggil fungsi untuk mengambil data relic saat halaman dimuat
+            getRelics();
+        });
+
+  
+    </script>
+</body>
+</html>

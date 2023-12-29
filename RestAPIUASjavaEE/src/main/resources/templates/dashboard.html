@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        /* CSS untuk header transparan dengan background gambar */
+        body {
+            margin: 0;
+            padding: 0;
+            background-image: url('/static/background/bg.png'); /* Ganti 'path-to-your-image.jpg' dengan alamat gambar latar belakang Anda */
+            background-repeat: no-repeat;
+            background-size: cover; /* Mengisi seluruh laman dengan gambar latar belakang */
+            background-position: center ; /* Posisi gambar latar belakang di tengah */
+            color: #fff; /* Mengatur warna teks keseluruhan body (putih) */
+            background-color: black;
+        }
+
+        .transparent-header {
+            background-color: rgba(0, 0, 0, 0.5); /* Mengatur warna latar belakang header dengan tingkat transparansi (hitam) */
+            padding: 20px;
+        }
+
+        .container {
+            background-color: rgba(0, 0, 0, 0.7); /* Mengatur latar belakang kontainer dengan tingkat transparansi (hitam) */
+            padding: 20px;
+            margin: 0 auto; /* Mengatur margin otomatis secara horizontal untuk pemusatkan */
+            width: 50%; /* Mengatur lebar kontainer (50% dari lebar laman) */
+
+        }
+
+        .menu-buttons {
+            text-align: right; /* Mengatur tombol menu di kanan */
+            margin:5px;
+        }
+
+        h1, p {
+            margin-top: 0;
+        }
+
+        .btn {
+            color: #fff; /* Mengatur warna teks tombol */
+        }
+
+        a {
+            color: #fff; /* Mengatur warna teks link */
+        }
+    </style>
+</head>
+<body>
+    <div class="transparent-header">
+        <div class="menu-buttons">
+            <a style="margin: 5px;" href="http://localhost:8080/view/lighclone" >Light Clone</a>
+            <a style="margin: 5px;" href="http://localhost:8080/view/character" >Character</a>
+            <a style="margin: 5px;" href="http://localhost:8080/view/relic" >Relic</a>
+            <a style="margin: 5px;" href="http://localhost:8080/view/login">Logout</a>
+        </div>
+        <div class="container">
+            <h1>Selamat datang di Website Buatan Pemain Honkai Star Rail</h1>
+            <p>Honkai: Star Rail adalah game turn-based RPG yang menampilkan deretan karakter HoYoverse dan dikemas dalam dunia unik (kalau dilihat-lihat dunianya benar-benar baru dan terpisah dari yang ditampilkan pada Honkai Impact 3rd ataupun Genshin Impact).</p>
+        </div>
+    </div>
+</body>
+</html>

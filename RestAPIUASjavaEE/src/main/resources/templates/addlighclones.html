@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Upload Lighclone</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+
+<body>
+	<div class="container">
+		<h1>Upload Lighclone</h1>
+		<form id="uploadLighcloneForm" enctype="multipart/form-data">
+			<div class="form-group">
+				<label for="name">Name</label>
+				<input type="text" class="form-control" id="name" name="name" required>
+			</div>
+			<div class="form-group">
+				<label for="path">Path</label>
+				<input type="text" class="form-control" id="path" name="path" required>
+			</div>
+			<div class="form-group">
+				<label for="story">Story</label>
+				<textarea class="form-control" id="story" name="story" rows="5" required></textarea>
+			</div>
+			<div class="form-group">
+				<label for="file">Lighclone Image</label>
+				<input type="file" class="form-control-file" id="file" name="file" required>
+			</div>
+			<button type="button" class="btn btn-primary" id="uploadButton">Create</button>
+		</form>
+	</div>
+
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+	<script>
+		$(document).ready(function () {
+			// Fungsi untuk mengunggah karakter
+			function uploadLighclone() {
+				var name = $("#name").val();
+				var path = $("#path").val();
+				var story = $("#story").val();
+				var fileInput = $("#file")[0].files[0];
+
+				if (name === "" || path === "" || story === "" || !fileInput) {
+					alert("Harap isi semua informasi karakter dan unggah gambar karakter.");
+					return;
+				}
+
+				var formData = new FormData();
+				formData.append("name", name);
+				formData.append("path", path);
+				formData.append("story", story);
+				formData.append("file", fileInput);
+
+				$.ajax({
+					url: "/api/lighclones/upload",
+					type: "POST",
+					data: formData,
+					processData: false,
+					contentType: false,
+					success: function (data) {
+						alert("Lighclone berhasil diunggah!");
+						window.location.href = "/view/lighclones/";
+					},
+					error: function (error) {
+						alert("Gagal mengunggah Lighclone.");
+					}
+				});
+			}
+
+			$("#uploadButton").click(uploadLighclone);
+		});
+	</script>
+</body>
+
+</html>

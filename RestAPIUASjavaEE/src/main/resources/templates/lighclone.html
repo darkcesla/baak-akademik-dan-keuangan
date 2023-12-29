@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Karakter</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        
+        .header {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 70%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            margin-top:30px;
+        }
+        .dashboard-link {
+            text-align: left;
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Data Karakter</h1>
+    </div>
+     <div class="dashboard-link">
+	<a href="/view/dashboard">Dashboard</a><span>/Karakter</span>
+    </div>
+<div class="container">
+    <a href="http://localhost:8080/view/addlighclones" class="btn btn-primary">Create</a>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nama</th>
+                <th>Path</th>
+                <th>Cerita</th>
+                <th>Gambar</th>
+                <th>Edit/Hapus</th>
+            </tr>
+        </thead>
+        <tbody id="lighcloneTable">
+            <!-- Data karakter akan ditampilkan di sini -->
+        </tbody>
+    </table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Fungsi untuk mengambil data karakter dari server
+        function getlighclones() {
+            $.get("/api/lighclones/all", function (data) {
+                var lighcloneTable = $("#lighcloneTable");
+                lighcloneTable.empty(); // Menghapus data yang ada sebelumnya
+
+                $.each(data, function (index, lighclone) {
+                    var row = $("<tr>");
+                    row.append($("<td>").text(lighclone.name));
+                    row.append($("<td>").text(lighclone.path));
+                    row.append($("<td>").text(lighclone.story));
+
+                    // Menampilkan gambar karakter dengan lebar maksimum 200 piksel
+                    var imageCell = $("<td>");
+                    var image = $("<img>").attr("src", "/static/lighclones/" + lighclone.image).attr("style", "max-width: 200px");
+                    imageCell.append(image);
+                    row.append(imageCell);
+
+                    var editDeleteCell = $("<td>");
+                    var editButton = $("<button>").text("Edit").addClass("btn btn-primary").click(function () {
+                        editlighclone(lighclone.id);
+                    });
+                    var deleteButton = $("<button>").text("Hapus").addClass("btn btn-danger").click(function () {
+                        deletelighclone(lighclone.id);
+                    });
+                    var Detaillighclone = $("<button>").text("Detail").addClass("btn btn-info").click(function () {
+                        viewlighclone(lighclone.id);
+                    });
+                    editDeleteCell.append(Detaillighclone);
+                    editDeleteCell.append(" | ");
+                    editDeleteCell.append(editButton);
+                    editDeleteCell.append(" | ");
+                    editDeleteCell.append(deleteButton);
+                    row.append(editDeleteCell);
+                    lighcloneTable.append(row);
+                });
+            });
+        }
+
+        // Fungsi untuk mengedit karakter berdasarkan ID
+        function editlighclone(lighcloneId) {
+            // Redirect ke tampilan edit karakter dengan ID karakter yang akan diubah
+            window.location.href = "/view/edit-lighclone/" + lighcloneId;
+        }
+
+        // Fungsi untuk melihat detail karakter berdasarkan ID
+        function viewlighclone(lighcloneId) {
+            // Redirect ke tampilan detail karakter dengan ID karakter yang akan dilihat
+            window.location.href = "/view/lighclone/" + lighcloneId;
+        }
+
+        // Fungsi untuk menghapus karakter berdasarkan ID
+        function deletelighclone(lighcloneId) {
+            // Konfirmasi pengguna sebelum menghapus karakter
+            var confirmation = confirm("Anda yakin ingin menghapus karakter ini?");
+            if (confirmation) {
+                // Mengirim permintaan DELETE ke server
+                $.ajax({
+                    url: "/api/lighclones/" + lighcloneId,
+                    type: "DELETE",
+                    success: function (data) {
+                        alert("Karakter berhasil dihapus.");
+                        getlighclones(); // Memuat ulang data karakter setelah menghapus
+                    },
+                    error: function (error) {
+                        alert("Gagal menghapus karakter.");
+                    }
+                });
+            }
+        }
+
+        // Memanggil fungsi untuk mengambil data karakter saat halaman dimuat
+        getlighclones();
+    });
+
+    // Fungsi untuk menangani pencarian karakter
+    $("#searchInput").on("input", function () {
+        var searchQuery = $(this).val();
+        $.get("/api/lighclones/search?name=" + searchQuery, function (data) {
+            var lighcloneTable = $("#lighcloneTable");
+            lighcloneTable.empty();
+
+            if (data.length === 0) {
+                lighcloneTable.append("<tr><td colspan='5'>Karakter tidak ditemukan</td></tr>");
+            } else {
+                $.each(data, function (index, lighclone) {
+                    // Tampilkan karakter sesuai hasil pencarian
+                    var row = $("<tr>");
+                    row.append($("<td>").text(lighclone.name));
+                    row.append($("<td>").text(lighclone.path));
+                    row.append($("<td>").text(lighclone.story));
+
+                    var imageCell = $("<td>");
+                    var image = $("<img>").attr("src", "/static/lighclones/" + lighclone.image).attr("style", "max-width: 200px");
+                    imageCell.append(image);
+                    row.append(imageCell);
+
+                    var editDeleteCell = $("<td>");
+                    var editButton = $("<button>").text("Edit").addClass("btn btn-primary").click(function () {
+                        editlighclone(lighclone.id);
+                    });
+                    var deleteButton = $("<button>").text("Hapus").addClass("btn btn-danger").click(function () {
+                        deletelighclone(lighclone.id);
+                    });
+                    var Detaillighclone = $("<button>").text("Detail").addClass("btn btn-info").click(function () {
+                        viewlighclone(lighclone.id);
+                    });
+                    editDeleteCell.append(Detaillighclone);
+                    editDeleteCell.append(" | ");
+                    editDeleteCell.append(editButton);
+                    editDeleteCell.append(" | ");
+                    editDeleteCell.append(deleteButton);
+                    row.append(editDeleteCell);
+                    lighcloneTable.append(row);
+                });
+            }
+        });
+    });
+</script>
+</body>
+</html>
